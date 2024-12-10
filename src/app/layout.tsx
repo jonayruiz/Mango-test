@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+// import localFont from "next/font/local";
 import "./globals.css";
+import Link from "next/link";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+// const geistSans = localFont({
+//   src: "./fonts/GeistVF.woff",
+//   variable: "--font-geist-sans",
+//   weight: "100 900",
+// });
+// const geistMono = localFont({
+//   src: "./fonts/GeistMonoVF.woff",
+//   variable: "--font-geist-mono",
+//   weight: "100 900",
+// });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,8 +27,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+        className={`font-mono antialiased`}
+        // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+        <header className="sticky top-0 left-0 w-full grid gap-5 grid-flow-col auto-cols-max p-5 bg-neutral-900 rounded-lg z-50">
+        <Link className="p-4 hover:bg-neutral-700 rounded-lg transition-all duration-200" href="/exercise1">Exercise 1</Link>
+        <Link className="p-4 hover:bg-neutral-700 rounded-lg transition-all duration-200" href="/exercise2">Exercise 2</Link>
+        </header>
         {children}
       </body>
     </html>
