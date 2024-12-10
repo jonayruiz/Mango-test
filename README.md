@@ -1,4 +1,4 @@
-Custom <Range /> component. 
+Custom `<Range />` component.  </br>
 2 use cases.
 
 ## Getting Started
