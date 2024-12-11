@@ -31,8 +31,14 @@ const Range = () => {
           setRangeMin(data.min);
           setRangeMax(data.max);
         }
-      } catch (err) {
-         setError(true)
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          console.error(err.message);
+          setError(true)
+        } else {
+          console.error("Unexpected error", err);
+        }
+       
       } finally {
          setLoading(false)
       }
