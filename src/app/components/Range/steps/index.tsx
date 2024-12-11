@@ -39,12 +39,12 @@ const Range = () => {
     fetchResponse();
   }, []);
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMove = (clientX: number) => {
     if (!isDragging.current || !currentHandle.current || !containerRef.current)
       return;
 
     const rect = containerRef.current.getBoundingClientRect();
-    const clickPosition = e.clientX - rect.left;
+    const clickPosition = clientX - rect.left;
     const percentage = Math.max(0, Math.min(1, clickPosition / rect.width));
     const closestIndex = rangeValues
       ? Math.round(percentage * (rangeValues.length - 1))
@@ -57,19 +57,34 @@ const Range = () => {
     }
   };
 
-  const startDrag = (handle: string) => {
-    isDragging.current = true;
-    currentHandle.current = handle;
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", stopDrag);
+  const handleTouchMove = (e: TouchEvent) => {
+    handleMove(e.touches[0].clientX);
   };
 
+  const handleMouseMove = (e: MouseEvent) => {
+    handleMove(e.clientX);
+  };
   const stopDrag = () => {
     isDragging.current = false;
     currentHandle.current = null;
     window.removeEventListener("mousemove", handleMouseMove);
     window.removeEventListener("mouseup", stopDrag);
   };
+  const startDrag = (
+    e: React.MouseEvent | React.TouchEvent,
+    handle: string
+  ) => {
+    isDragging.current = true;
+    currentHandle.current = handle;
+    if (e.type === "mousedown") {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", stopDrag);
+    } else if (e.type === "touchstart") {
+      window.addEventListener("touchmove", handleTouchMove);
+      window.addEventListener("touchend", stopDrag);
+    }
+  };
+
   const hasError = error ? (
     <div className="text-red-500">Error fetching data</div>
   ) : null;
@@ -81,12 +96,15 @@ const Range = () => {
       ) : (
         <div
           ref={containerRef}
-          className="relative w-[calc(100%-120px)] h-4 bg-gray-300 rounded-full"
+          className="relative w-full md:w-[calc(100%-120px)] h-4 bg-gray-300 rounded-full"
         >
           <div className="absolute pointer-events-none top-0 -translate-y-full pb-2 -left-[4%]  w-[108%] flex justify-between">
             {rangeValues?.map((o, i) => {
               return (
-                <div key={`rangeValues-${i}`} className="relative select-none">
+                <div
+                  key={`rangeValues-${i}`}
+                  className="text-xs relative select-none"
+                >
                   {o}
                 </div>
               );
@@ -109,12 +127,12 @@ const Range = () => {
             type="number"
             value={rangeValues?.[minIndex]}
             readOnly
-            className="absolute pointer-events-none select-none selection:bg-transparent top-1/2 -left-16  max-w-20 -translate-x-1/2 border-2 border-white rounded-md   -translate-y-1/2 bg-transparent text-center outline-white"
+            className="absolute pointer-events-none select-none selection:bg-transparent top-full left-8  max-w-20 -translate-x-1/2 border-2 border-white rounded-md translate-y-1/2 bg-transparent text-center outline-white"
           />
           <input
             type="number"
             value={rangeValues?.[maxIndex]}
-            className="absolute  pointer-events-none select-none selection:bg-transparent top-1/2 -right-16 max-w-20 translate-x-1/2  border-2 border-white rounded-md -translate-y-1/2  bg-transparent text-center  outline-white"
+            className="absolute  pointer-events-none select-none selection:bg-transparent top-full right-8 max-w-20 translate-x-1/2  border-2 border-white rounded-md translate-y-1/2  bg-transparent text-center  outline-white"
             readOnly
           />
           <div
@@ -124,7 +142,8 @@ const Range = () => {
                 rangeValues ? (minIndex / (rangeValues.length - 1)) * 100 : ""
               }%`,
             }}
-            onMouseDown={() => startDrag("min")}
+            onTouchStart={(e) => startDrag(e, "min")}
+            onMouseDown={(e) => startDrag(e, "min")}
           >
             <div className="w-6 h-6 bg-black rounded-full shadow-sm border-white border-2 shadow-white transition-transform hover:scale-125 group-active:scale-125"></div>
           </div>
@@ -135,7 +154,8 @@ const Range = () => {
                 rangeValues ? (maxIndex / (rangeValues.length - 1)) * 100 : ""
               }%`,
             }}
-            onMouseDown={() => startDrag("max")}
+            onTouchStart={(e) => startDrag(e, "max")}
+            onMouseDown={(e) => startDrag(e, "max")}
           >
             <div className="w-6 h-6 bg-black rounded-full shadow-sm border-white border-2 shadow-white transition-transform hover:scale-125 group-active:scale-125"></div>
           </div>

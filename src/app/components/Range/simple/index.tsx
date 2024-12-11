@@ -25,7 +25,6 @@ const Range = () => {
           throw Error("No response");
         } else {
           const data = await response.json();
-          console.log(data);
           setMinValue(data.min);
           setMaxValue(data.max);
           setRangeMin(data.min);
@@ -47,14 +46,13 @@ const Range = () => {
     fetchResponse();
   }, []);
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging.current || !currentHandle.current || !refContainer.current)
-      return;
+  const handleMove = (clientX:number) => {
+    if (!isDragging.current || !currentHandle.current || !refContainer.current) return;
 
     const rect = refContainer.current.getBoundingClientRect();
     const rectLeft = rect.left;
     const rectWidth = rect.width;
-    const clickPosition = e.clientX - rectLeft;
+    const clickPosition = clientX - rectLeft;
 
     const newValue = Math.round(
       (clickPosition / rectWidth) * (maxValue - minValue) + minValue
@@ -69,18 +67,38 @@ const Range = () => {
     }
   };
 
-  const startDrag = (e: React.MouseEvent, handle: string) => {
+
+  const handleMouseMove = (e: MouseEvent) => handleMove(e.clientX);
+
+  const handleTouchMove = (e: TouchEvent) => {
+    if (e.touches.length > 0) {
+      const clientX = e.touches[0].clientX;
+      handleMove(clientX);
+    }
+  };
+  
+  const startDrag = (e: React.MouseEvent | React.TouchEvent, handle: string) => {
     isDragging.current = true;
     currentHandle.current = handle;
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", stopDrag);
+
+    if (e.type === "mousedown") {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", stopDrag);
+    } else if (e.type === "touchstart") {
+      window.addEventListener("touchmove", handleTouchMove);
+      window.addEventListener("touchend", stopDrag);
+    }
   };
 
   const stopDrag = () => {
     isDragging.current = false;
     currentHandle.current = null;
+
     window.removeEventListener("mousemove", handleMouseMove);
     window.removeEventListener("mouseup", stopDrag);
+
+    window.removeEventListener("touchmove", handleTouchMove);
+    window.removeEventListener("touchend", stopDrag);
   };
 
   useEffect(() => {
@@ -137,7 +155,8 @@ const Range = () => {
               left: `${mappedMaxHandle}%`,
             }}
             onMouseDown={(e) => startDrag(e, "max")}
-          >
+            onTouchStart={(e) => startDrag(e, "max")}
+            >
             <div className="absolute -translate-y-full left-1/2 -translate-x-1/2 select-none">
               {rangeMax}
             </div>
@@ -147,6 +166,7 @@ const Range = () => {
           <div
             className="absolute top-1/2 -translate-y-1/2  -translate-x-1/2 transition-transform ease-out duration-200 cursor-grab  active:cursor-grabbing group"
             onMouseDown={(e) => startDrag(e, "min")}
+            onTouchStart={(e) => startDrag(e, "min")}
             style={{
               left: `${mappedMinHandle}%`,
               transform: `translate(-50%, -50%) scale(${

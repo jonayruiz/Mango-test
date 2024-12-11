@@ -13,6 +13,8 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family:monospace, monospace;
+  position: fixed;
+  width: 100%;
 }
 
 @layer base {

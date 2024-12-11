@@ -1,5 +1,5 @@
-import RangeSimple from "@/app/exercise1/components/Range";
-import RangeSteps from "@/app/exercise2/components/Range";
+import RangeSimple from "@/app/components/Range/simple";
+import RangeSteps from "@/app/components/Range/steps";
 const Ranger = ({ type }: { type?: string }) => {
   if (type !== "steps" || !type) {
     return <RangeSimple />;
