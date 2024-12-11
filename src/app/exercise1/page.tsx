@@ -1,4 +1,4 @@
-import Range from './components/Range'
+import Range from "../components/Range";
 export default function Home() {
   return (
     <div className="grid grid-rows-[auto_1fr] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -12,7 +12,7 @@ export default function Home() {
           </sup>
         </h1>
       </header>
-      <div className='max-w-6xl mx-auto w-full'>
+      <div className="max-w-6xl mx-auto w-full">
         <Range />
       </div>
     </div>
